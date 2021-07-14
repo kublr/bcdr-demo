@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: admin
+  namespace: kafka
+  labels:
+    strimzi.io/kind: KafkaUser
+    strimzi.io/cluster: kafka-cluster
+type: Opaque
+data:
+  password: 'YWRtaW4=' # admin
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user1
+  namespace: kafka
+  labels:
+    strimzi.io/kind: KafkaUser
+    strimzi.io/cluster: kafka-cluster
+type: Opaque
+data:
+  password: 'dXNlcjE=' # user1
+---
+
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaUser
+metadata:
+  name: admin
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: kafka-cluster
+spec:
+  authentication:
+    type: scram-sha-512
+---
+
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaUser
+metadata:
+  name: user1
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: kafka-cluster
+spec:
+  authentication:
+    type: scram-sha-512
+  authorization:
+    type: simple
+    acls:
+      - resource:
+          type: topic
+          name: topic-1
+          patternType: literal
+        operation: Read
+        host: "*"
+      - resource:
+          type: topic
+          name: topic-1
+          patternType: literal
+        operation: Write
+        host: "*"
+      - resource:
+          type: group
+          name: test-consumer
+          patternType: literal
+        operation: Read
+        host: "*"
+---
+
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaUser
+metadata:
+  name: user2
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: kafka-cluster
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      - resource:
+          type: topic
+          name: topic-1
+          patternType: literal
+        operation: Read
+        host: "*"
+      - resource:
+          type: topic
+          name: topic-1
+          patternType: literal
+        operation: Write
+        host: "*"
+      - resource:
+          type: group
+          name: test-consumer
+          patternType: literal
+        operation: Read
+        host: "*"

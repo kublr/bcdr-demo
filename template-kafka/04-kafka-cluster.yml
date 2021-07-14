@@ -1,0 +1,99 @@
+apiVersion: kafka.strimzi.io/v1beta1
+kind: Kafka
+metadata:
+  name: kafka-cluster
+  namespace: kafka
+spec:
+  kafka:
+    version: 2.7.0
+    replicas: 3
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+        authentication:
+          type: scram-sha-512
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+        authentication:
+          type: scram-sha-512
+      - name: external
+        port: 9094
+        type: loadbalancer
+        tls: true
+        authentication:
+          type: tls
+    authorization:
+      type: simple
+      superUsers:
+        - CN=admin
+        - admin
+    rack:
+      topologyKey: topology.kubernetes.io/zone
+    storage:
+      type: persistent-claim
+      size: 20Gi
+      deleteClaim: true
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-metrics
+          key: kafka-metrics-config.yml
+    template:
+      pod:
+        metadata:
+          annotations:
+            prometheus.io/scrape: 'true'
+            prometheus.io/port: "9404"
+            prometheus.io/path: /metrics
+  zookeeper:
+    replicas: 3
+    storage:
+      type: persistent-claim
+      size: 1Gi
+      deleteClaim: true
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-metrics
+          key: zookeeper-metrics-config.yml
+    template:
+      pod:
+        metadata:
+          annotations:
+            prometheus.io/scrape: 'true'
+            prometheus.io/port: "9404"
+            prometheus.io/path: /metrics
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+  kafkaExporter:
+    groupRegex: ".*"
+    topicRegex: ".*"
+    resources:
+      requests:
+        cpu: 200m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 128Mi
+    logging: info
+    enableSaramaLogging: true
+    readinessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    livenessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    template:
+      pod:
+        metadata:
+          annotations:
+            prometheus.io/scrape: 'true'
+            prometheus.io/port: "9404"
+            prometheus.io/path: /metrics

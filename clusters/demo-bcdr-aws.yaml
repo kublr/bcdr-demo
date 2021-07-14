@@ -1,0 +1,120 @@
+kind: Cluster
+metadata:
+  name: demo-bcdr-aws
+  # space: default
+spec:
+  master:
+    locations:
+      - aws:
+          instanceType: t3.large
+          availabilityZones:
+            - us-east-1c
+          instanceMonitoring: false
+          rootVolume:
+            size: 40
+          groupType: asg-mip
+          mixedInstancesPolicyCloudFormationExtras:
+            InstancesDistribution:
+              OnDemandPercentageAboveBaseCapacity: 0
+            LaunchTemplate:
+              Overrides:
+                - InstanceType: t3.large
+                - InstanceType: t2.large
+        locationRef: aws1
+    minNodes: 1
+    kublrVariant: aws-ubuntu-20.04
+    kublrAgentConfig:
+      kublr:
+        psp:
+          default_clusterrole: 'psp:privileged'
+  kublrAgentTgzUrl: 'https://repo.kublr.com/repository/gobinaries/kublr/1.20.7-13/kublr-1.20.7-13-linux.tar.gz'
+  locations:
+    - name: aws1
+      aws:
+        region: us-east-1
+        enableTerminationProtection: false
+        awsApiAccessSecretRef: aws
+  network:
+    apiServerSecurePort: 6443
+  nodes:
+    - name: group1
+      locations:
+        - locationRef: aws1
+          aws:
+            instanceType: t3.large
+            instanceMonitoring: false
+            rootVolume:
+              size: 40
+            availabilityZones:
+              - us-east-1c
+              - us-east-1d
+              - us-east-1e
+            groupType: asg-mip
+            mixedInstancesPolicyCloudFormationExtras:
+              InstancesDistribution:
+                OnDemandPercentageAboveBaseCapacity: 0
+              LaunchTemplate:
+                Overrides:
+                  - InstanceType: m5a.large
+                  - InstanceType: m5.large
+                  - InstanceType: m5ad.large
+                  - InstanceType: m5d.large
+                  - InstanceType: m5n.large
+                  - InstanceType: m5dn.large
+                  - InstanceType: t3.large
+      kublrVariant: aws-ubuntu-20.04
+      autoscaling: false
+      minNodes: 3
+  features:
+    logging:
+      logCollection:
+        enabled: true
+      sinks:
+        - selfHosted:
+            enabled: false
+            masterNodes: 1
+            dataNodes: 1
+            clientNodes: 1
+        - centralLogging:
+            enabled: true
+            masterNodes: 1
+            dataNodes: 1
+            clientNodes: 1
+            logstashReplicas: 1
+            persistent: true
+            size: 128G
+      chart:
+        version: 1.21.1-23
+    monitoring:
+      enabled: true
+      platformClient:
+        enabled: true
+        prometheus:
+          persistent: false
+      chart:
+        version: 1.21.1-18
+    ingress:
+      ingressControllers:
+        - nginx:
+            enabled: true
+            hostPortHttp: 80
+            hostPortHttps: 443
+            loadBalancerPortHttp: 80
+            loadBalancerPortHttps: 443
+            acme:
+              enabled: true
+              apiUrl: 'https://acme-v02.api.letsencrypt.org/directory'
+              email: demo@demo.com
+      chart:
+        version: 1.21.1-17
+    system:
+      chart:
+        version: 1.21.1-17
+    kubedb:
+      enabled: false
+      chart:
+        version: 1.21.1-18
+    kublrOperator:
+      enabled: true
+      chart:
+        version: 1.21.1-19
