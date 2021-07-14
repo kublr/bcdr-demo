@@ -1,3 +1,39 @@
+# TOC
+
+* 1 Pre-requisites
+* 1.1 Setup environment
+* 1.2 Create Azure and AWS clusters and setup local kubectl
+* 2 Prepate Strimzi / Kafka
+* 2.1 Deploy Strimzi and Kafka
+* 2.2 Install Grafana dashboards
+* 2.3 Simple consumer and producer
+* 3 Prepate ArgoCD projects and environment
+* 3.1 Install ArgoCD CLI
+* 3.1 Deploy ArgoCD and Test App
+* 3.3 Connect to ArgoCD
+* 3.4 Deploy a test app
+* 4 Prepare Velero Backup
+* 4.1 Azure
+* 4.1.1 Create Backups Azure Storage Account and Resource Group
+* 4.1.2 Deploy Velero Server to Azure cluster
+* 4.2 AWS
+* 4.2.1 Create Backup AWS S3 bucket
+* 4.1.2 Deploy Velero Server to Azure cluster
+* 5 Backup
+* 5.1 One-time Backup Kafka
+* 5.2 Scheduled Backup Kafka
+* 5.3 Backup ArgoCD and App
+* 6 Restore
+* 6.1 Restore Kafka
+* 6.1.1 Delete Kafka
+* 6.1.2 Restore Kafka
+* 6.2 Restore ArgoCD and/or Application
+* 6.2.1 Delete App Namespace
+* 6.2.2 Delete ArgoCD namespace
+* 6.2.3 Restore ArgoCD Namespace
+* 6.2.4 Restore App Namespace
+* 7 Cleanup
+
 # 1. Pre-requisites
 
 * Kublr 1.21.0+
@@ -66,8 +102,7 @@ Create clusters:
 When the cluster is created download and setup kubeconfig:
 
 ```bash
-. bcdr-demo/hacks/15-get-kubeconfig.sh
-. bcdr-demo/hacks/16-setup-kubeconfig.sh
+. bcdr-demo/hacks/15-get-kubeconfigs.sh
 ```
 
 Verify that it works:
