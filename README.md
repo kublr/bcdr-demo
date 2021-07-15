@@ -506,13 +506,19 @@ ArgoCD shows healthy synced application status again
 
 # 7. Cleanup
 
+Delete all restore and backup objects and resources:
+
 ```shell
-# Velero
 velero restore delete --all
 velero backup delete --all
+```
 
-velero backup get # wait till empty
+Wait for all backups to be deleted, checking with the command `velero backup get`.
 
+Delete Velero, ArgoCD and the test app:
+
+```shell
+# Veleeo
 helm uninstall velero --namespace velero
 kubectl delete ns velero
 kubectl delete $(kubectl get crd -o name | grep velero)
@@ -522,9 +528,20 @@ kubectl delete ns guestbook
 kubectl delete -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.0.3/manifests/install.yaml
 kubectl delete ns argocd
 kubectl delete $(kubectl get crd -o name | grep argoproj)
+```
 
+Delete Kafaka cluster.
+
+```shell
 # Kafka and Strimzi
 kubectl delete -f bcdr-demo/template-kafka/
+```
+
+Wait for kafka cluster to be deleted.
+
+Delete strimzi operator.
+
+```shell
 helm uninstall -n strimzi strimzi-kafka-operator
 kubectl delete ns kafka strimzi
 kubectl delete $(kubectl get crd -o name | grep 'strimzi\|kafka')
