@@ -22,7 +22,7 @@ spec:
       kublr:
         psp:
           default_clusterrole: 'psp:privileged'
-  kublrAgentTgzUrl: 'https://repo.kublr.com/repository/gobinaries/kublr/1.20.7-13/kublr-1.20.7-13-linux.tar.gz'
+  kublrAgentTgzUrl: 'https://repo.kublr.com/repository/gobinaries/kublr/1.20.9-18/kublr-1.20.9-18-linux.tar.gz'
   locations:
     - name: azure1
       azure:

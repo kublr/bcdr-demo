@@ -204,6 +204,13 @@ The consumers will print to the standard output.
 
 `Ctrl-D` will complete the producer, and `Ctrl-C` will complete both producers and consumers.
 
+Cleanup leftover pods:
+
+```shell
+kubectl -n kafka delete pod kafka-producer --now
+kubectl -n kafka delete pod kafka-consumer --now
+```
+
 # 3. Prepate ArgoCD projects and environment
 
 ## 3.1. Install ArgoCD CLI
@@ -230,8 +237,8 @@ kubectl --context=z apply -n argocd -f https://raw.githubusercontent.com/argopro
 Port forward ArgoCD UI:
 
 ```bash
-kubectl --context=w port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 > /dev/null 2> /dev/null &
-kubectl --context=z port-forward svc/argocd-server -n argocd 8081:443 --address 0.0.0.0 > /dev/null 2> /dev/null &
+kubectl --context=w port-forward svc/argocd-server -n argocd 8081:443 --address 0.0.0.0 > /dev/null 2> /dev/null &
+kubectl --context=z port-forward svc/argocd-server -n argocd 8082:443 --address 0.0.0.0 > /dev/null 2> /dev/null &
 ```
 
 Get password(s):
@@ -241,13 +248,13 @@ echo "ArgoCD pwd AWS  : $(kubectl --context=w -n argocd get secret argocd-initia
 echo "ArgoCD pwd Azure: $(kubectl --context=z -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
 ```
 
-Login in browser https://localhost:8080 and https://localhost:8081
+Login in browser https://localhost:8081 and https://localhost:8082
 
 Login ArgoCD CLI:
 
 ```bash
-argocd login --name w localhost:8080
-argocd login --name z localhost:8081
+argocd login --name w localhost:8081
+argocd login --name z localhost:8082
 ```
 
 ## 3.4. Deploy a test app
